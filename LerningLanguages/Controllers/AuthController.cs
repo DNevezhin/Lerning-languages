@@ -8,13 +8,17 @@ namespace LerningLanguages.Controllers
     public sealed class AuthController : ControllerBase
     {
         [HttpPost("register")]
-        public IActionResult RegisterUser([FromQuery] string password)
+        public IActionResult RegisterUser([FromQuery] string password, [FromQuery] string login)
         {
             try
             {
-                if (password.Length < 6)
+                if (password.Length < 6 || login.Length < 5 )
                 {
-                    throw new ArgumentException("Пароль слишком короткий");
+                    throw new ArgumentException("Пароль или логин слишком короткий");
+                }
+                if(!password.Any(char.IsUpper))
+                {
+                    throw new ArgumentException("Пароль должен содержать хотя бы 1 заглавную букву");
                 }
 
                 return Ok(new { message = "Пользователь успешно зарегистрирован" });
