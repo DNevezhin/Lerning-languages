@@ -10,7 +10,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "LearningLanguages API v1");
+        options.SwaggerEndpoint("https://localhost:7018/openapi/v1.json", "LearningLanguages API v1");
         options.RoutePrefix = "swagger";
     });
 }
