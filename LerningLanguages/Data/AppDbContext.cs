@@ -7,9 +7,9 @@ namespace LerningLanguages.Data
     {
         public DbSet<User> Users { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            optionsBuilder.UseSqlite("Data Source=app.db");
+
         }
     }
 }

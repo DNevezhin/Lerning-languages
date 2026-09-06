@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LerningLanguages.Data;
+using LerningLanguages.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace LerningLanguages.Controllers
@@ -7,23 +10,47 @@ namespace LerningLanguages.Controllers
     [Route("api/[controller]")]
     public sealed class AuthController : ControllerBase
     {
-        [HttpPost("register")]
-        public IActionResult RegisterUser([FromQuery] string password, [FromQuery] string login)
+        private readonly AppDbContext _context;
+        
+        public AuthController(AppDbContext context)
         {
+            _context = context;
+        }
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto dto)
+        {
+            if (dto.Password == null || dto.Login == null)
+            {
+                throw new ArgumentException("Введите логин и пароль");
+            }
+            if (dto.Password.Length < 6 || dto.Login.Length < 5)
+            {
+                throw new ArgumentException("Пароль или логин слишком короткий");
+            }
+            if (!dto.Password.Any(char.IsUpper))
+            {
+                throw new ArgumentException("Пароль должен содержать хотя бы 1 заглавную букву");
+            }
             try
             {
-                if (password.Length < 6 || login.Length < 5 )
+                if (await _context.Users.AnyAsync(u => u.Login == dto.Login))
                 {
-                    throw new ArgumentException("Пароль или логин слишком короткий");
+                    return Conflict("Пользователь с таким логином уже существует");
                 }
-                if(!password.Any(char.IsUpper))
+                else
                 {
-                    throw new ArgumentException("Пароль должен содержать хотя бы 1 заглавную букву");
-                }
+                    User user = new User
+                    {
+                        Login = dto.Login,
+                        PasswordHash = dto.Password
+                    };
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Пользователь успешно зарегистрирован" });
+                    return Ok(new { message = "Пользователь успешно зарегистрирован" });
+                }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
