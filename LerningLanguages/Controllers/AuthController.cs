@@ -1,5 +1,6 @@
 ﻿using LerningLanguages.Data;
 using LerningLanguages.Models;
+using LerningLanguages.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,10 +12,12 @@ namespace LerningLanguages.Controllers
     public sealed class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
-        
-        public AuthController(AppDbContext context)
+        private readonly JwtService _jwtService;
+
+        public AuthController(AppDbContext context,JwtService jwtservice)
         {
             _context = context;
+            _jwtService=jwtservice;
         }
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto dto)
@@ -54,6 +57,24 @@ namespace LerningLanguages.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUser([FromBody] LoginUserDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == dto.Login);
+            if (user == null)
+            {
+                return Unauthorized("Пользователь не найден");
+            }
+            if (dto.Password != user.PasswordHash)
+            {
+                return Unauthorized("Неверный пароль");
+            }
+
+            var token=_jwtService.GenerateToken(user);
+            return Ok(new { token = token });
+
+
         }
     }
 }
