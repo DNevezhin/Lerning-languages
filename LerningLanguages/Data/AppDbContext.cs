@@ -9,6 +9,8 @@ namespace LerningLanguages.Data
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<LerningLanguages.Models.Task> Tasks { get; set; }
 
+        public DbSet<UserProgress> UsersProgress { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 

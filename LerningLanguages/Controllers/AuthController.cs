@@ -45,7 +45,7 @@ namespace LerningLanguages.Controllers
                     User user = new User
                     {
                         Login = dto.Login,
-                        PasswordHash = dto.Password
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -66,7 +66,7 @@ namespace LerningLanguages.Controllers
             {
                 return Unauthorized("Пользователь не найден");
             }
-            if (dto.Password != user.PasswordHash)
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password,user.PasswordHash))
             {
                 return Unauthorized("Неверный пароль");
             }

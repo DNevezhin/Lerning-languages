@@ -82,15 +82,61 @@ namespace LerningLanguages.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("LerningLanguages.Models.UserProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UsersProgress");
+                });
+
             modelBuilder.Entity("LerningLanguages.Models.Task", b =>
                 {
-                    b.HasOne("LerningLanguages.Models.Lesson", "Lesson")
-                        .WithMany()
+                    b.HasOne("LerningLanguages.Models.Lesson", null)
+                        .WithMany("Tasks")
                         .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.Navigation("Lesson");
+            modelBuilder.Entity("LerningLanguages.Models.UserProgress", b =>
+                {
+                    b.HasOne("LerningLanguages.Models.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LerningLanguages.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LerningLanguages.Models.Lesson", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }
